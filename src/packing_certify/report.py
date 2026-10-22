@@ -1,0 +1,133 @@
+"""Run every stage on every published construction and write reports/."""
+
+from __future__ import annotations
+
+import json
+from decimal import Decimal
+from fractions import Fraction
+from pathlib import Path
+
+import matplotlib
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt  # noqa: E402
+import mpmath as mp  # noqa: E402
+
+from . import certify, exact, exploit, polish  # noqa: E402
+
+LABELS = {
+    "square26_alphaevolve": "AlphaEvolve, 26 circles in a square",
+    "square26_aemon": "Aemon, 26 circles in a square",
+    "square32_alphaevolve": "AlphaEvolve, 32 circles in a square",
+    "rect21_alphaevolve": "AlphaEvolve, 21 circles, perimeter-4 rectangle",
+}
+
+
+def _dec(f: Fraction, digits: int = 15) -> str:
+    with mp.workdps(digits + 10):
+        return mp.nstr(mp.mpf(f.numerator) / f.denominator, digits, strip_zeros=False)
+
+
+def run_one(name: str) -> dict:
+    p, v, meta = exact.load(name)
+    published = exact.verify(p, v)
+    vf, iterations = polish.converge(p, v)
+    act = polish.active_set(p, vf)
+    pol = polish.polish(p, vf, act.keys)
+    cert = certify.certify(p, pol.v, act.keys)
+    hi, lo = Fraction(Decimal(cert.value_hi)), Fraction(Decimal(cert.value_lo))
+    out = {
+        "name": name, "label": LABELS[name], "source": meta["source"], "problem": p.kind, "n": p.n,
+        "published": {"exact_valid": published.valid, "sum": _dec(published.total), "violations": published.violations,
+                      "min_pair_gap": published.min_pair_gap, "min_wall_gap": published.min_wall_gap},
+        "local_optimum": {
+            "slsqp_iterations": iterations, "active": len(act.keys), "variables": p.nvar,
+            "separation_orders": round(act.separation_orders, 1),
+            "polished_sum": mp.nstr(pol.total, 40), "newton_residual": float(pol.residual),
+            "gain_over_published": float(lo - published.total),
+            "contacts": sum(1 for k in act.keys if k[0] == "pair"), "wall_contacts": sum(1 for k in act.keys if k[0] == "wall"),
+        },
+        "certificate": {
+            "certified": cert.certified, "reason": cert.reason, "box_radius": cert.eps,
+            "value_lower": cert.value_lo, "value_upper": cert.value_hi,
+            "krawczyk_margin": cert.krawczyk_margin, "min_multiplier_lower": cert.min_multiplier_lo,
+            "min_inactive_slack_lower": cert.min_inactive_lo,
+        },
+        "exploits": [],
+    }
+    tries = [exploit.float_rounding(p, pol.v)] + ([exploit.tolerance(p, pol.v)] if p.kind == "square" else [])
+    for e in tries:
+        out["exploits"].append({
+            "verifier": e.verifier, "accepted": bool(e.accepted), "reported_sum": repr(e.float_sum),
+            "exact_sum": _dec(e.exact_sum, 18), "above_certified_max": bool(e.exact_sum > hi),
+            "exceeds_certified_max_by": float(e.exact_sum - hi),
+            "exact_valid": e.exact_valid, "violations": e.overlaps, "worst_violation": e.worst_violation,
+        })
+    out["_plot"] = (p, pol.v, act.keys, pol.multipliers)
+    return out
+
+
+def _plot(results: list[dict], path: Path) -> None:
+    fig, axes = plt.subplots(2, 2, figsize=(11, 11))
+    for ax, r in zip(axes.flat, results):
+        p, v, keys, lam = r["_plot"]
+        fv = [float(t) for t in v]
+        W = fv[3 * p.n] if p.kind == "rectangle" else 1.0
+        H = 2 - W if p.kind == "rectangle" else 1.0
+        ax.add_patch(plt.Rectangle((0, 0), W, H, fill=False, lw=1.2))
+        for i in range(p.n):
+            ax.add_patch(plt.Circle((fv[3 * i], fv[3 * i + 1]), fv[3 * i + 2], fc="#cfe3f5", ec="#3b6ea5", lw=0.8))
+        lmax = max(float(x) for x in lam)
+        for k, l in zip(keys, lam):
+            if k[0] == "pair":
+                _, i, j = k
+                ax.plot([fv[3 * i], fv[3 * j]], [fv[3 * i + 1], fv[3 * j + 1]], color="#c0392b",
+                        lw=0.6 + 2.4 * float(l) / lmax, alpha=0.85)
+        ax.set_xlim(-0.02, max(W, H) + 0.02); ax.set_ylim(-0.02, max(W, H) + 0.02); ax.set_aspect("equal"); ax.axis("off")
+        c = r["certificate"]
+        ax.set_title(f"{r['label']}\ncertified local max = {c['value_lower'][:20]}…\n"
+                     f"{r['local_optimum']['contacts']} contacts + {r['local_optimum']['wall_contacts']} wall contacts = {r['local_optimum']['variables']} variables",
+                     fontsize=9.5)
+    fig.suptitle("Certified local optima. Red lines are contacts; thicker means a larger Lagrange multiplier.", fontsize=11)
+    fig.tight_layout()
+    fig.savefig(path, dpi=110)
+    plt.close(fig)
+
+
+def build(out: Path) -> str:
+    out.mkdir(parents=True, exist_ok=True)
+    results = [run_one(n) for n in exact.names()]
+    _plot(results, out / "certified-optima.png")
+    (out / "results.json").write_text(json.dumps([{k: v for k, v in r.items() if k != "_plot"} for r in results], indent=1))
+
+    md = ["# Certificates for the public AlphaEvolve packing constructions\n",
+          "Generated by `packing-certify report`. Every number below is recomputed from the published decimals.\n",
+          "## 1. Published constructions, checked exactly\n",
+          "| Construction | Valid in exact arithmetic | Published sum of radii (exact) | Closest approach (pair / wall) |",
+          "|---|---|---|---|"]
+    for r in results:
+        pub = r["published"]
+        md.append(f"| {r['label']} | {'yes' if pub['exact_valid'] else 'NO: ' + '; '.join(pub['violations'][:3])} | {pub['sum']} | "
+                  f"{pub['min_pair_gap']:.1e} / {pub['min_wall_gap']:.1e} |")
+    md += ["\n## 2. The local optimum each construction sits next to, certified\n",
+           "| Construction | Certified strict local maximum (enclosure, 30 digits) | Gain over published | Active / variables | Gap to next constraint | Smallest multiplier ≥ | Krawczyk margin |",
+           "|---|---|---|---|---|---|---|"]
+    for r in results:
+        lo, c = r["local_optimum"], r["certificate"]
+        md.append(f"| {r['label']} | {'**' + c['value_lower'][:32] + '…**' if c['certified'] else 'not certified: ' + c['reason']} | "
+                  f"{lo['gain_over_published']:.2e} | {lo['active']} / {lo['variables']} | {lo['separation_orders']} orders | "
+                  f"{c['min_multiplier_lower']:.4f} | {c['krawczyk_margin']:.1e} |")
+    md += ["\nEach value is enclosed in an interval of width about 5e-39 (`results.json` has both ends).\n",
+           "![Certified local optima](certified-optima.png)\n",
+           "## 3. What the published verifiers accept\n",
+           "Starting from each certified optimum, radii are grown for as long as the verifier still accepts.\n",
+           "| Construction | Verifier | Accepted | Reported sum | Above the certified maximum by | Valid in exact arithmetic | Violations (worst) |",
+           "|---|---|---|---|---|---|---|"]
+    for r in results:
+        for e in r["exploits"]:
+            md.append(f"| {r['label']} | {e['verifier']} | {'yes' if e['accepted'] else 'no'} | {e['reported_sum']} | "
+                      f"{e['exceeds_certified_max_by']:+.2e} | {'yes' if e['exact_valid'] else 'no'} | {e['violations']} ({e['worst_violation']:.1e}) |")
+    md += ["\nVerifier sources: " + "; ".join(f"{k}: {v}" for k, v in exploit.SOURCES.items()) + "\n"]
+    text = "\n".join(md)
+    (out / "REPORT.md").write_text(text)
+    return text

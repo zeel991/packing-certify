@@ -1,0 +1,227 @@
+[
+ {
+  "name": "square26_alphaevolve",
+  "label": "AlphaEvolve, 26 circles in a square",
+  "source": "https://github.com/google-deepmind/alphaevolve_results/blob/4226acbf237ff9ad10ba7673a2af127a2d8a5971/mathematical_results.ipynb (B.12, Construction 1)",
+  "problem": "square",
+  "n": 26,
+  "published": {
+   "exact_valid": true,
+   "sum": "2.63586275641370",
+   "violations": [],
+   "min_pair_gap": 7.166487294361127e-09,
+   "min_wall_gap": 7.85235099e-09
+  },
+  "local_optimum": {
+   "slsqp_iterations": 14,
+   "active": 78,
+   "variables": 78,
+   "separation_orders": 11.7,
+   "polished_sum": "2.635977394754392752218631205141448295014",
+   "newton_residual": 1.2860204115417241e-54,
+   "gain_over_published": 0.00011463834069463222,
+   "contacts": 58,
+   "wall_contacts": 20
+  },
+  "certificate": {
+   "certified": true,
+   "reason": "strict local maximum",
+   "box_radius": 1e-40,
+   "value_lower": "2.635977394754392752218631205141448295012",
+   "value_upper": "2.635977394754392752218631205141448295017",
+   "krawczyk_margin": 4.659391798903567e-15,
+   "min_multiplier_lower": 0.009761175980436463,
+   "min_inactive_slack_lower": 0.014342007984840364
+  },
+  "exploits": [
+   {
+    "verifier": "deepmind (strict float64)",
+    "accepted": true,
+    "reported_sum": "2.6359773947543923",
+    "exact_sum": "2.63597739475439236",
+    "above_certified_max": false,
+    "exceeds_certified_max_by": -3.966494364993193e-16,
+    "exact_valid": false,
+    "violations": 11,
+    "worst_violation": 4.163336342344337e-17
+   },
+   {
+    "verifier": "tolerance 1e-06 (OpenEvolve / CodeEvolve style)",
+    "accepted": true,
+    "reported_sum": "2.6359903947413925",
+    "exact_sum": "2.63599039474139267",
+    "above_certified_max": true,
+    "exceeds_certified_max_by": 1.2999986999917811e-05,
+    "exact_valid": false,
+    "violations": 78,
+    "worst_violation": 9.999990001561145e-07
+   }
+  ]
+ },
+ {
+  "name": "square26_aemon",
+  "label": "Aemon, 26 circles in a square",
+  "source": "https://aemon.ai/ ('View Aemon's solution', aemon_construction), retrieved 2026-10-22",
+  "problem": "square",
+  "n": 26,
+  "published": {
+   "exact_valid": true,
+   "sum": "2.63598308227816",
+   "violations": [],
+   "min_pair_gap": 1.6157640655236392e-10,
+   "min_wall_gap": 7.886e-11
+  },
+  "local_optimum": {
+   "slsqp_iterations": 7,
+   "active": 78,
+   "variables": 78,
+   "separation_orders": 12.1,
+   "polished_sum": "2.635983084917607783186569485443481730397",
+   "newton_residual": 3.322020577626967e-58,
+   "gain_over_published": 2.6394457831865696e-09,
+   "contacts": 58,
+   "wall_contacts": 20
+  },
+  "certificate": {
+   "certified": true,
+   "reason": "strict local maximum",
+   "box_radius": 1e-40,
+   "value_lower": "2.635983084917607783186569485443481730394",
+   "value_upper": "2.635983084917607783186569485443481730399",
+   "krawczyk_margin": 2.311042339122589e-18,
+   "min_multiplier_lower": 0.010606067613553172,
+   "min_inactive_slack_lower": 0.014404298657799339
+  },
+  "exploits": [
+   {
+    "verifier": "deepmind (strict float64)",
+    "accepted": true,
+    "reported_sum": "2.6359830849176076",
+    "exact_sum": "2.63598308491760744",
+    "above_certified_max": false,
+    "exceeds_certified_max_by": -3.4464008651797605e-16,
+    "exact_valid": false,
+    "violations": 15,
+    "worst_violation": 2.990054973559387e-17
+   },
+   {
+    "verifier": "tolerance 1e-06 (OpenEvolve / CodeEvolve style)",
+    "accepted": true,
+    "reported_sum": "2.6359960849046074",
+    "exact_sum": "2.63599608490460767",
+    "above_certified_max": true,
+    "exceeds_certified_max_by": 1.2999986999886554e-05,
+    "exact_valid": false,
+    "violations": 78,
+    "worst_violation": 9.999990001125297e-07
+   }
+  ]
+ },
+ {
+  "name": "square32_alphaevolve",
+  "label": "AlphaEvolve, 32 circles in a square",
+  "source": "https://github.com/google-deepmind/alphaevolve_results/blob/4226acbf237ff9ad10ba7673a2af127a2d8a5971/mathematical_results.ipynb (B.12, Construction 2)",
+  "problem": "square",
+  "n": 32,
+  "published": {
+   "exact_valid": true,
+   "sum": "2.93794452620552",
+   "violations": [],
+   "min_pair_gap": 7.898057438919307e-09,
+   "min_wall_gap": 6.300614e-09
+  },
+  "local_optimum": {
+   "slsqp_iterations": 14,
+   "active": 96,
+   "variables": 96,
+   "separation_orders": 10.2,
+   "polished_sum": "2.939572771206323634996322323460492105932",
+   "newton_residual": 6.806422960160624e-62,
+   "gain_over_published": 0.001628245000805515,
+   "contacts": 74,
+   "wall_contacts": 22
+  },
+  "certificate": {
+   "certified": true,
+   "reason": "strict local maximum",
+   "box_radius": 1e-40,
+   "value_lower": "2.939572771206323634996322323460492105929",
+   "value_upper": "2.939572771206323634996322323460492105936",
+   "krawczyk_margin": 3.7191361009016824e-22,
+   "min_multiplier_lower": 0.017581751814447603,
+   "min_inactive_slack_lower": 0.014220278936969182
+  },
+  "exploits": [
+   {
+    "verifier": "deepmind (strict float64)",
+    "accepted": true,
+    "reported_sum": "2.9395727712063233",
+    "exact_sum": "2.93957277120632328",
+    "above_certified_max": false,
+    "exceeds_certified_max_by": -3.560599769345041e-16,
+    "exact_valid": false,
+    "violations": 22,
+    "worst_violation": 4.163336342344337e-17
+   },
+   {
+    "verifier": "tolerance 1e-06 (OpenEvolve / CodeEvolve style)",
+    "accepted": true,
+    "reported_sum": "2.9395887711903237",
+    "exact_sum": "2.93958877119032373",
+    "above_certified_max": true,
+    "exceeds_certified_max_by": 1.5999984000090218e-05,
+    "exact_valid": false,
+    "violations": 96,
+    "worst_violation": 9.99999000105081e-07
+   }
+  ]
+ },
+ {
+  "name": "rect21_alphaevolve",
+  "label": "AlphaEvolve, 21 circles, perimeter-4 rectangle",
+  "source": "https://github.com/google-deepmind/alphaevolve_results/blob/4226acbf237ff9ad10ba7673a2af127a2d8a5971/mathematical_results.ipynb (B.13)",
+  "problem": "rectangle",
+  "n": 21,
+  "published": {
+   "exact_valid": true,
+   "sum": "2.36583213341676",
+   "violations": [],
+   "min_pair_gap": 1.0843920397900557e-08,
+   "min_wall_gap": 0.0
+  },
+  "local_optimum": {
+   "slsqp_iterations": 19,
+   "active": 64,
+   "variables": 64,
+   "separation_orders": 13.1,
+   "polished_sum": "2.365832375910832741572079722291439371798",
+   "newton_residual": 2.4997074494258474e-58,
+   "gain_over_published": 2.4249406961157207e-07,
+   "contacts": 47,
+   "wall_contacts": 17
+  },
+  "certificate": {
+   "certified": true,
+   "reason": "strict local maximum",
+   "box_radius": 1e-40,
+   "value_lower": "2.365832375910832741572079722291439371796",
+   "value_upper": "2.365832375910832741572079722291439371800",
+   "krawczyk_margin": 1.4104006395368594e-18,
+   "min_multiplier_lower": 0.11437422240884954,
+   "min_inactive_slack_lower": 0.13632629131162102
+  },
+  "exploits": [
+   {
+    "verifier": "deepmind (strict float64)",
+    "accepted": true,
+    "reported_sum": "2.3658323759108324",
+    "exact_sum": "2.36583237591083247",
+    "above_certified_max": false,
+    "exceeds_certified_max_by": -2.7525734258978474e-16,
+    "exact_valid": false,
+    "violations": 13,
+    "worst_violation": 4.163336342344337e-17
+   }
+  ]
+ }
+]
